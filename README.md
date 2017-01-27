@@ -1,9 +1,8 @@
-# Project 1: What did the presidents say at their inauguations?
-# Spring 2017
+# Project 1: Text Mining for Presidential Inauguration Speeches
+ADS Spring 2017
+Ethan Liu
 
-![image](figs/title.jpg)
-
-### [Project Description](doc/)
+### [Description](doc/)
 
 + Summary:
 
