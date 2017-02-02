@@ -1,5 +1,5 @@
 # Project 1: Text Mining for Presidential Inauguration Speeches
-
+Ethan Liu - Spring 2017
 ### [Project Description](doc/)
 
 + Summary:

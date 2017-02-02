@@ -1,0 +1,26 @@
+---
+title: "Presidential Inauguration Speeches"
+output: Inaugurantion-Speech.nb.html
+---
+
+# Step 0: check and install needed packages. Load the libraries and self defined functions. 
+```{r, message=FALSE, warning=FALSE}
+packages.used=c("tm", "wordcloud", "RColorBrewer", "dplyr", "tidytext")
+
+# check packages that need to be installed.
+packages.needed=setdiff(packages.used, 
+                        intersect(installed.packages()[,1], packages.used))
+# install additional packages
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE, repos='http://cran.us.r-project.org')
+}
+
+# load packages
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+library(dplyr)
+library(tidytext)
+```
+
+# Step 1: check and install needed packages. Load the libraries and functions. 
