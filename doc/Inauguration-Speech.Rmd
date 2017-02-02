@@ -1,26 +1,48 @@
 ---
 title: "Presidential Inauguration Speeches"
-output: Inaugurantion-Speech.nb.html
+output: html_document
 ---
 
-# Step 0: check and install needed packages. Load the libraries and self defined functions. 
+# Part 0: Install and load libraries
 ```{r, message=FALSE, warning=FALSE}
-packages.used=c("tm", "wordcloud", "RColorBrewer", "dplyr", "tidytext")
+packages.used=c("tm", "dplyr", "tidytext", "ggplot2")
 
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used, 
                         intersect(installed.packages()[,1], packages.used))
 # install additional packages
 if(length(packages.needed)>0){
-  install.packages(packages.needed, dependencies = TRUE, repos='http://cran.us.r-project.org')
+  install.packages(packages.needed, dependencies = TRUE)
 }
 
 # load packages
 library(tm)
-library(wordcloud)
-library(RColorBrewer)
 library(dplyr)
 library(tidytext)
+library(ggplot2)
+source("../lib/TextProcessing.R")
 ```
 
-# Step 1: check and install needed packages. Load the libraries and functions. 
+# Part 1: Most-used words
+We first examine the most frequently used words in presidential inauguration speeches. Below is the code to process all speeches and plot the most frequently used words across all speeches.
+```{r, message=FALSE, warning=FALSE}
+folder.path="../data/InauguralSpeeches/"
+docs <- getSpeeches(folder.path)
+
+# stem words and get most frequent words
+docs <- tm_map(docs, stemDocument)
+tdm <- TermDocumentMatrix(docs)
+freq <- sort(rowSums(as.matrix(tdm)), decreasing=TRUE)
+wf <- data.frame(word=names(freq), freq=freq)
+wf$word <- factor(wf$word, levels = wf$word[order(wf$freq, decreasing=TRUE)])
+
+# build histogram 
+p <- ggplot(subset(wf, freq>=head(freq, 20)[[20]]), aes(x=word, y=freq))
+p <- p + geom_bar(stat="identity", fill="red", colour="darkgreen")   
+p <- p + theme(axis.text.x=element_text(angle=45, hjust=1))
+p
+```
+
+Some comments here
+
+# Part 2: Topic modeling
