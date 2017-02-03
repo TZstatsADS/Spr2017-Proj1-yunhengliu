@@ -5,7 +5,7 @@ output: html_document
 
 # Part 0: Install and load libraries
 ```{r, message=FALSE, warning=FALSE}
-packages.used=c("tm", "dplyr", "tidytext", "ggplot2")
+packages.used=c("tm", "dplyr", "tidytext", "ggplot2", "topicmodels")
 
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used, 
@@ -19,6 +19,7 @@ if(length(packages.needed)>0){
 library(tm)
 library(dplyr)
 library(tidytext)
+library(topicmodels)
 library(ggplot2)
 source("../lib/TextProcessing.R")
 ```
@@ -29,15 +30,14 @@ We first examine the most frequently used words in presidential inauguration spe
 folder.path="../data/InauguralSpeeches/"
 docs <- getSpeeches(folder.path)
 
-# stem words and get most frequent words
-docs <- tm_map(docs, stemDocument)
+# get most frequent words
 tdm <- TermDocumentMatrix(docs)
 freq <- sort(rowSums(as.matrix(tdm)), decreasing=TRUE)
 wf <- data.frame(word=names(freq), freq=freq)
 wf$word <- factor(wf$word, levels = wf$word[order(wf$freq, decreasing=TRUE)])
 
 # build histogram 
-p <- ggplot(subset(wf, freq>=head(freq, 20)[[20]]), aes(x=word, y=freq))
+p <- ggplot(subset(wf, freq>=head(freq, 25)[[25]]), aes(x=word, y=freq))
 p <- p + geom_bar(stat="identity", fill="red", colour="darkgreen")   
 p <- p + theme(axis.text.x=element_text(angle=45, hjust=1))
 p
@@ -46,3 +46,19 @@ p
 Some comments here
 
 # Part 2: Topic modeling
+```{r, message=FALSE, warning=FALSE}
+folder.path="../data/InauguralSpeeches/"
+# empiricially removing words that does not convey info in these termsspeeches
+extra.words <- c("will", "can", "may", "upon", "let", "must", "shall", 
+                 "every", "one", "now", "today", "time", "day", "new", 
+                 "united", "states", "country", "nation")
+docs <- getSpeeches(folder.path, extra.words)
+dtm <- DocumentTermMatrix(docs)
+lda <- LDA(dtm, k=4, 
+           method="Gibbs", 
+           control=list(nstart=4, seed=list(272, 166, 966, 377), delta=0.1,
+                        best=TRUE, burnin=0, iter=2000, thin=2000))
+topics <- as.matrix(topics(lda))
+terms <- as.matrix(terms(lda, 12))
+```
+
