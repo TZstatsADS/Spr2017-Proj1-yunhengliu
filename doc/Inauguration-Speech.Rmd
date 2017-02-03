@@ -1,7 +1,8 @@
 ---
 title: "Presidential Inauguration Speeches"
-output: html_document
+output: pdf_document
 ---
+We examine some common facotrs in presidential inauguration speeches since the founding of United States.
 
 # Part 0: Install and load libraries
 ```{r, message=FALSE, warning=FALSE}
@@ -25,7 +26,7 @@ source("../lib/TextProcessing.R")
 ```
 
 # Part 1: Most-used words
-We first examine the most frequently used words in presidential inauguration speeches. Below is the code to process all speeches and plot the most frequently used words across all speeches.
+We first examine the most frequently used words in presidential inauguration speeches. Below is the code to process all speeches and plot the 25 of the most frequently used words (stemmed) across all speeches. The graph generated is stored in the figs folder.
 ```{r, message=FALSE, warning=FALSE}
 folder.path="../data/InauguralSpeeches/"
 docs <- getSpeeches(folder.path)
@@ -40,12 +41,13 @@ wf$word <- factor(wf$word, levels = wf$word[order(wf$freq, decreasing=TRUE)])
 p <- ggplot(subset(wf, freq>=head(freq, 25)[[25]]), aes(x=word, y=freq))
 p <- p + geom_bar(stat="identity", fill="red", colour="darkgreen")   
 p <- p + theme(axis.text.x=element_text(angle=45, hjust=1))
+ggsave("../figs/most-used-words.png", plot=p, device="png")
 p
 ```
-
-Some comments here
+Not suprisingly, the most used word is "will" ("shall" is also on the list) since inauguration speeches generally lays out a plan-of-attack for the upcoming term of the president. Moreover, we can see that words that are used to convey ideologies like "must" and "every" are also on the list. Finally, words like "constitution" and "people" that define the American government also appear on the list.
 
 # Part 2: Topic modeling
+We used LDA to model the topics in all inaugural speeches. The LDA model initialized to 3 topics and is seeded with 3 random integers for reproducibility. The generated tables are stored into txt files in the output folder.
 ```{r, message=FALSE, warning=FALSE}
 folder.path="../data/InauguralSpeeches/"
 # empiricially removing words that does not convey info in these termsspeeches
@@ -54,11 +56,17 @@ extra.words <- c("will", "can", "may", "upon", "let", "must", "shall",
                  "united", "states", "country", "nation")
 docs <- getSpeeches(folder.path, extra.words)
 dtm <- DocumentTermMatrix(docs)
-lda <- LDA(dtm, k=4, 
+lda <- LDA(dtm, k=3, 
            method="Gibbs", 
-           control=list(nstart=4, seed=list(272, 166, 966, 377), delta=0.1,
+           control=list(nstart=3, seed=list(272, 166, 966), delta=0.1,
                         best=TRUE, burnin=0, iter=2000, thin=2000))
 topics <- as.matrix(topics(lda))
 terms <- as.matrix(terms(lda, 12))
+write.table(topics, file = "../output/topic-speech.txt", quote=FALSE, sep = "\t")
+write.table(terms, file = "../output/term-topic.txt", quote=FALSE, sep = "\t")
+terms
 ```
+The 1st topic contains words like "duty", "public", "people", and "right", suggesting a moral aspect of the topic. The 2nd topic contains words like "law", "civil", "govern", and "policy", suggesting a legal inclination. The 3rd topic contains words like "freedom", "life", "work", "hope", which is typical for the American ideology. There are also some interesting insights from the topic/speech table. For example, Obama and Trump's speeches falls into the same topic. This can be a result of the financial crisis of 2007/2008 and political crisis in the most recent election. As a result, both presidents need to rekindle hope for the people by emphasizing the ideologies of work and life for Americans. Another thing that is interesting to note is that the topics for speeches across terms for the same president are relatively consistent, showing that there is certain level of validity of this model.
 
+# Part 3: Some conclusions
+Inauguration speeches are not designed to be surprises and they generally cover similar topics with different emphasis. We can see from part 1 that none of the most frequently used words are too out of our expectation. In addition, the topics in part 2 also generally adhere to the American tradition. Since these speeches are generally written with strong intention and thesis, we should not expect anything out of the ordinary from mining them.

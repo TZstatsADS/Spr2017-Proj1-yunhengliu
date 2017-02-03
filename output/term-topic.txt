@@ -1,0 +1,13 @@
+Topic 1	Topic 2	Topic 3
+1	govern	law	world
+2	power	govern	peopl
+3	constitut	nation	america
+4	right	peopl	american
+5	great	secur	freedom
+6	interest	peac	work
+7	public	civil	life
+8	union	administr	live
+9	peopl	polit	know
+10	principl	polici	peac
+11	duti	question	make
+12	execut	purpos	hope
